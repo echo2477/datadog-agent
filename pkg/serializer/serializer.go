@@ -293,7 +293,7 @@ func (s *Serializer) SendSeries(series marshaler.StreamJSONMarshaler) error {
 		return nil
 	}
 
-	const useV1API = true // v2 intake for series is not yet implemented
+	useV1API := !config.Datadog.GetBool("use_v2_api.series")
 
 	var seriesPayloads forwarder.Payloads
 	var extraHeaders http.Header

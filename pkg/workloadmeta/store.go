@@ -201,6 +201,22 @@ func (s *Store) GetContainer(id string) (Container, error) {
 	return c, nil
 }
 
+// ListContainers returns metadata about all known containers.
+func (s *Store) ListContainers() ([]Container, error) {
+	entities, err := s.listEntitiesByKind(KindContainer)
+	if err != nil {
+		return nil, err
+	}
+
+	// Not very efficient
+	containers := make([]Container, 0, len(entities))
+	for _, entity := range entities {
+		containers = append(containers, entity.(Container))
+	}
+
+	return containers, nil
+}
+
 // GetKubernetesPod returns metadata about a Kubernetes pod.
 func (s *Store) GetKubernetesPod(id string) (KubernetesPod, error) {
 	var p KubernetesPod
@@ -333,7 +349,7 @@ func (s *Store) getEntityByKind(kind Kind, id string) (Entity, error) {
 
 	entitiesOfKind, ok := s.store[kind]
 	if !ok {
-		return nil, errors.NewNotFound(id)
+		return nil, errors.NewNotFound(string(kind))
 	}
 
 	entity, ok := entitiesOfKind[id]
@@ -342,6 +358,23 @@ func (s *Store) getEntityByKind(kind Kind, id string) (Entity, error) {
 	}
 
 	return entity, nil
+}
+
+func (s *Store) listEntitiesByKind(kind Kind) ([]Entity, error) {
+	s.storeMut.RLock()
+	defer s.storeMut.RUnlock()
+
+	entitiesOfKind, ok := s.store[kind]
+	if !ok {
+		return nil, errors.NewNotFound(string(kind))
+	}
+
+	entities := make([]Entity, 0, len(entitiesOfKind))
+	for _, entity := range entitiesOfKind {
+		entities = append(entities, entity)
+	}
+
+	return entities, nil
 }
 
 func notifyChannel(name string, ch chan EventBundle, events []Event, wait bool) {

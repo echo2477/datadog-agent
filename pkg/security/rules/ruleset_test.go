@@ -73,7 +73,7 @@ func addRuleExpr(t *testing.T, rs *RuleSet, exprs ...string) {
 
 func TestRuleBuckets(t *testing.T) {
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 
 	exprs := []string{
 		`(open.filename =~ "/sbin/*" || open.filename =~ "/usr/sbin/*") && process.uid != 0 && open.flags & O_CREAT > 0`,
@@ -106,7 +106,7 @@ func TestRuleSetDiscarders(t *testing.T) {
 	}
 
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(m, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(m, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 	rs.AddListener(handler)
 
 	exprs := []string{
@@ -167,7 +167,7 @@ func TestRuleSetDiscarders(t *testing.T) {
 
 func TestRuleSetFilters1(t *testing.T) {
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 
 	addRuleExpr(t, rs, `open.filename in ["/etc/passwd", "/etc/shadow"] && (process.uid == 0 || process.gid == 0)`)
 
@@ -226,7 +226,7 @@ func TestRuleSetFilters1(t *testing.T) {
 
 func TestRuleSetFilters2(t *testing.T) {
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 
 	exprs := []string{
 		`open.filename in ["/etc/passwd", "/etc/shadow"] && process.uid == 0`,
@@ -283,7 +283,7 @@ func TestRuleSetFilters2(t *testing.T) {
 
 func TestRuleSetFilters3(t *testing.T) {
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 
 	addRuleExpr(t, rs, `open.filename in ["/etc/passwd", "/etc/shadow"] && (process.uid == process.gid)`)
 
@@ -310,7 +310,7 @@ func TestRuleSetFilters3(t *testing.T) {
 
 func TestRuleSetFilters4(t *testing.T) {
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 
 	addRuleExpr(t, rs, `open.filename =~ "/etc/passwd" && process.uid == 0`)
 
@@ -339,7 +339,7 @@ func TestRuleSetFilters4(t *testing.T) {
 
 func TestRuleSetFilters5(t *testing.T) {
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 
 	addRuleExpr(t, rs, `(open.flags & O_CREAT > 0 || open.flags & O_EXCL > 0) && open.flags & O_RDWR > 0`)
 
@@ -364,7 +364,7 @@ func TestRuleSetFilters6(t *testing.T) {
 	t.Skip()
 
 	enabled := map[eval.EventType]bool{"*": true}
-	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, testSupportedDiscarders, enabled, nil, nil))
+	rs := NewRuleSet(&testModel{}, func() eval.Event { return &testEvent{} }, NewOptsWithParams(testConstants, nil, testSupportedDiscarders, enabled, nil, nil))
 
 	addRuleExpr(t, rs, `(open.flags & O_CREAT > 0 || open.flags & O_EXCL > 0) || process.name == "httpd"`)
 

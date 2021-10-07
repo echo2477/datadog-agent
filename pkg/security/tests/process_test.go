@@ -565,6 +565,31 @@ func TestProcessExecCTime(t *testing.T) {
 	})
 }
 
+func TestProcessPIDVariable(t *testing.T) {
+	executable := which("touch")
+
+	ruleDef := &rules.RuleDefinition{
+		ID:         "test_rule_var",
+		Expression: `open.file.path =~ "/proc/*/maps" && open.file.path != "/proc/${pid}/maps"`,
+	}
+
+	test, err := newTestModule(t, nil, []*rules.RuleDefinition{ruleDef}, testOpts{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer test.Close()
+
+	err = test.GetSignal(t, func() error {
+		cmd := exec.Command(executable, fmt.Sprintf("/proc/%d/maps", os.Getpid()))
+		return cmd.Run()
+	}, func(event *sprobe.Event, rule *rules.Rule) {
+		assert.Equal(t, "test_rule_var", rule.ID, "wrong rule triggered")
+	})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestProcessExec(t *testing.T) {
 	executable := "/usr/bin/touch"
 	if resolved, err := os.Readlink(executable); err == nil {

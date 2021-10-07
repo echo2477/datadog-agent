@@ -69,6 +69,22 @@ SECL operators are used to combine event attributes together into a full express
 | `&&`                  | File             | Logical and                              | 7.27          |
 | `||`                  | File             | Logical or                               | 7.27          |
 
+## Variables
+SECL variables are predefined variables that can be used as values or as part of values.
+
+An example rule using a `pid` variable looks like this:
+
+{{< code-block lang="javascript" >}}
+open.file.path == "/proc/${pid}/maps"
+
+{{< /code-block >}}
+
+List of the available variables:
+
+| SECL Variable         |  Definition                           | Agent Version |
+|-----------------------|---------------------------------------|---------------|
+| `pid`                 | Process PID                           | 7.33          |
+
 ## Helpers
 Helpers exist in SECL that enable users to write advanced rules without needing to rely on generic techniques such as regex.
 

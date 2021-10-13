@@ -568,6 +568,44 @@ func (tm *testModule) WaitSignal(tb testing.TB, action func() error, cb ruleHand
 	return nil
 }
 
+// ErrTimeout is used to indicate that a test timed out
+type ErrTimeout struct {
+	msg string
+}
+
+func (et ErrTimeout) Error() string {
+	return et.msg
+}
+
+// NewTimeoutError returns a new timeout error with the metrics collected during the test
+func NewTimeoutError(probe *sprobe.Probe) ErrTimeout {
+	err := ErrTimeout{
+		"timeout",
+	}
+
+	if probe == nil {
+		return err
+	}
+	monitor := probe.GetMonitor()
+	if monitor == nil {
+		return err
+	}
+	perfBufferMonitor := monitor.GetPerfBufferMonitor()
+	if perfBufferMonitor == nil {
+		return err
+	}
+
+	err.msg = fmt.Sprintf("%s, %d lost", err.msg, perfBufferMonitor.GetKernelLostCount("events", -1))
+
+	for i := model.UnknownEventType; i < model.MaxEventType; i++ {
+		if stats := perfBufferMonitor.GetEventStats(i, "events", -1); stats.Count > 0 {
+			err.msg = fmt.Sprintf("%s, %d %s", err.msg, stats.Count, i)
+		}
+	}
+
+	return err
+}
+
 func (tm *testModule) GetSignal(tb testing.TB, action func() error, cb ruleHandler) error {
 	tb.Helper()
 
@@ -589,7 +627,7 @@ func (tm *testModule) GetSignal(tb testing.TB, action func() error, cb ruleHandl
 
 	select {
 	case <-time.After(getEventTimeout):
-		return errors.New("timeout")
+		return NewTimeoutError(tm.probe)
 	case <-ctx.Done():
 		return nil
 	}

@@ -175,9 +175,9 @@ func (pbm *PerfBufferMonitor) getKernelLostCount(eventType model.EventType, perf
 	return atomic.LoadUint64(&pbm.kernelStats[perfMap][cpu][eventType].Lost)
 }
 
-// GetAndResetKernelLostCount returns the number of lost events for a given map and cpu. If a cpu of -1 is provided, the function will
+// GetKernelLostCount returns the number of lost events for a given map and cpu. If a cpu of -1 is provided, the function will
 // return the sum of all the lost events of all the cpus.
-func (pbm *PerfBufferMonitor) GetAndResetKernelLostCount(perfMap string, cpu int, evtTypes ...model.EventType) uint64 {
+func (pbm *PerfBufferMonitor) GetKernelLostCount(perfMap string, cpu int, evtTypes ...model.EventType) uint64 {
 	var total uint64
 	var shouldCount bool
 
@@ -252,7 +252,7 @@ func (pbm *PerfBufferMonitor) swapKernelLostCount(eventType model.EventType, per
 	return atomic.SwapUint64(&pbm.kernelStats[perfMap][cpu][eventType].Lost, value)
 }
 
-// GetEventStats returns the number of received events of the specified type and resets the counter
+// GetEventStats returns the number of received events of the specified type
 func (pbm *PerfBufferMonitor) GetEventStats(eventType model.EventType, perfMap string, cpu int) PerfMapStats {
 	var stats PerfMapStats
 	var maps []string

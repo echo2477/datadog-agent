@@ -106,11 +106,21 @@ typedef struct _transport_handle_stats {
     volatile LONG64       packets_reported; // number of packets sent up
 
 } TRANSPORT_STATS;
+
+typedef struct _http_handle_stats {
+
+    volatile LONG64       packets_processed; // number of packets through the driver
+    volatile LONG64       num_flow_collisions;
+    volatile LONG64       num_flows_missed_max_exceeded;
+
+} HTTP_STATS;
+
 typedef struct _stats
 {
     HANDLE_STATS            handle_stats;
     FLOW_STATS              flow_stats;
     TRANSPORT_STATS         transport_stats;
+    HTTP_STATS              http_stats;
 } STATS;
 
 /*!

@@ -207,6 +207,13 @@ func (dh *Handle) GetStatsForHandle() (map[string]int64, error) {
 			"read_packets_skipped":        stats.Handle.Transport_stats.Read_packets_skipped,
 			"packets_reported":            stats.Handle.Transport_stats.Packets_reported,
 		}, nil
+	// A HTTPHandle handle returns http stats specific to this handle
+	case HTTPHandle:
+		return map[string]int64{
+			"packets_processed_http":             stats.Handle.Http_stats.Packets_processed,
+			"num_flows_missed_max_exceeded_http": stats.Handle.Http_stats.Num_flows_missed_max_exceeded,
+			"num_flow_collisions_http":           stats.Handle.Http_stats.Num_flow_collisions,
+		}, nil
 	default:
 		return nil, fmt.Errorf("no matching handle type for pulling handle stats")
 	}

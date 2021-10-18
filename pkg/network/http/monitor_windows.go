@@ -11,6 +11,10 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/util/log"
 )
 
+const (
+	defaultMaxTrackedConnections = 65536
+)
+
 // Monitor is responsible for aggregating and emitting metrics based on
 // batches of HTTP transactions received from the driver interface
 type Monitor struct {
@@ -24,6 +28,10 @@ func NewMonitor(c *config.Config) (*Monitor, error) {
 	di, err := newDriverInterface()
 	if err != nil {
 		return nil, err
+	}
+
+	if (uint64(c.MaxTrackedConnections) != defaultMaxTrackedConnections) {
+		di.setMaxFlows(c.MaxTrackedConnections)
 	}
 
 	return &Monitor{

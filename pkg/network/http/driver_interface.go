@@ -126,6 +126,21 @@ func createHTTPFilters() ([]driver.FilterDefinition, error) {
 }
 
 
+
+func (di *DriverInterface) setMaxFlows(maxFlows uint64) error {
+	log.Debugf("Setting max flows in driver http filter to %v", maxFlows)
+	err := windows.DeviceIoControl(di.driverHTTPHandle.Handle,
+		driver.SetMaxFlowsIOCTL,
+		(*byte)(unsafe.Pointer(&maxFlows)),
+		uint32(unsafe.Sizeof(maxFlows)),
+		nil,
+		uint32(0), nil, nil)
+	if err != nil {
+		log.Warnf("Failed to set max number of flows in driver http filter to %v %v", maxFlows, err)
+	}
+	return err
+}
+
 func (di *httpDriverInterface) startReadingBuffers() {
 	di.eventLoopWG.Add(1)
 	go func() {

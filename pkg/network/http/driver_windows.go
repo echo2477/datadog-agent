@@ -34,7 +34,6 @@ type httpDriverInterface struct {
 	iocp             windows.Handle
 
 	dataChannel chan []driver.HttpTransactionType
-	exit		chan bool
 	eventLoopWG sync.WaitGroup
 }
 
@@ -46,7 +45,6 @@ func newDriverInterface() (*httpDriverInterface, error) {
 	}
 
 	d.dataChannel = make(chan []driver.HttpTransactionType)
-	d.exit = make(chan bool)
 	return d, nil
 }
 
@@ -135,16 +133,9 @@ func (di *httpDriverInterface) startReadingBuffers() {
 
 		transactionSize := uint32(C.size_of_http_transaction_type())
 		for {
-			select {
-			case <-di.exit:
-				return
-			default:
-			}
-
 			buf, err, bytesRead := driver.GetReadBufferWhenReady(di.iocp) 
 			if iocpIsClosedError(err) {
-				// Continue looping until the exit signal is received
-				continue
+				return
 			}
 			/*
 			if err != nil {
@@ -172,12 +163,11 @@ func (di *httpDriverInterface) startReadingBuffers() {
 }
 
 func iocpIsClosedError(err error) bool {
-	// ERROR_ABANDONED_WAIT_0 indicates that the iocp handle was closed during a call to
-	// GetQueuedCompletionStatus. ERROR_INVALID_HANDLE indicates that the handle was closed
-	// prior to the call being made.
+	// ERROR_ABANDONED_WAIT_0 indicates that the iocp handle was closed during a call to GetQueuedCompletionStatus.
+	// ERROR_INVALID_HANDLE indicates that the handle was closed prior to the call being made.
 
 	if err == nil {
-		return
+		return false
 	}
 
 	log.Infof("Error found: %s", err.Error())
@@ -224,12 +214,8 @@ func (di *httpDriverInterface) flushPendingTransactions() {
 }
 
 func (di *httpDriverInterface) close() error {
-	// Must close iocp handle before sending exit signal
 	err := di.closeDriverHandles()
-	
-	di.exit <- true
 	di.eventLoopWG.Wait()
-	close(di.exit)
 	close(di.dataChannel)
 
 	for _, buf := range di.readBuffers {

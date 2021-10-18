@@ -74,7 +74,6 @@ func (di *httpDriverInterface) setupHTTPHandle() error {
 	return nil
 }
 
-
 func createHTTPFilters() ([]driver.FilterDefinition, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
@@ -152,12 +151,10 @@ func (di *httpDriverInterface) startReadingBuffers() {
 			if iocpIsClosedError(err) {
 				return
 			}
-			/*
 			if err != nil {
 				log.Infof("Error reading http transaction buffer: %s", err.Error())
 				continue
 			}
-			*/
 
 			batchSize := bytesRead / transactionSize
 			transactionBatch := make([]driver.HttpTransactionType, batchSize)
@@ -188,6 +185,17 @@ func iocpIsClosedError(err error) bool {
 	log.Infof("Error found: %s", err.Error())
 
 	// TODO run debugger & find the error codes of the errors
+	/*
+	err := windows.GetQueuedCompletionStatus(iocp, &bytesRead, &key, &ol, 0)
+	if err != nil {
+		if err == syscall.Errno(syscall.WAIT_TIMEOUT) {
+			// this indicates that there was no queued completion status, this is fine
+			return nil, nil, 0
+		}
+
+		return nil, errors.Wrap(err, "could not get queued completion status"), 0
+	}
+	*/
 
 	if err == syscall.Errno(windows.ERROR_ABANDONED_WAIT_0) {
 		log.Infof("    IOCP was closed during call", err.Error())

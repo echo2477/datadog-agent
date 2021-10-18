@@ -663,7 +663,7 @@ func (tm *testModule) GetProbeCustomEvent(tb testing.TB, action func() error, cb
 
 	select {
 	case <-time.After(getEventTimeout):
-		return errors.New("timeout")
+		return NewTimeoutError(tm.probe)
 	case <-ctx.Done():
 		return nil
 	}
@@ -713,7 +713,7 @@ func (tm *testModule) GetProbeEvent(action func() error, cb func(event *sprobe.E
 
 	select {
 	case <-time.After(getEventTimeout):
-		return errors.New("timeout")
+		return NewTimeoutError(tm.probe)
 	case <-ctx.Done():
 		return nil
 	}

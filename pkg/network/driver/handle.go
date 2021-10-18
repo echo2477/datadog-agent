@@ -43,7 +43,7 @@ const (
 	// StatsHandle has no filter set and is used to pull total stats from the driver
 	StatsHandle HandleType = "Stats"
 
-	// TODO
+	// HTTPHandle is keyed to return batches of completed HTTP transactions from the driver. Used with: #define FILTER_LAYER_TRANSPORT ((uint64_t) 1)
 	HTTPHandle HandleType = "HTTP"
 )
 
@@ -210,9 +210,18 @@ func (dh *Handle) GetStatsForHandle() (map[string]int64, error) {
 	// A HTTPHandle handle returns http stats specific to this handle
 	case HTTPHandle:
 		return map[string]int64{
-			"packets_processed_http":             stats.Handle.Http_stats.Packets_processed,
-			"num_flows_missed_max_exceeded_http": stats.Handle.Http_stats.Num_flows_missed_max_exceeded,
-			"num_flow_collisions_http":           stats.Handle.Http_stats.Num_flow_collisions,
+			"read_calls":                    stats.Handle.Handle_stats.Read_calls,
+			"read_calls_outstanding":        stats.Handle.Handle_stats.Read_calls_outstanding,
+			"read_calls_completed":          stats.Handle.Handle_stats.Read_calls_completed,
+			"read_calls_cancelled":          stats.Handle.Handle_stats.Read_calls_cancelled,
+			"write_calls":                   stats.Handle.Handle_stats.Write_calls,
+			"write_bytes":                   stats.Handle.Handle_stats.Write_bytes,
+			"ioctl_calls":                   stats.Handle.Handle_stats.Ioctl_calls,
+			"packets_processed":             stats.Handle.Http_stats.Packets_processed,
+			"num_flows_missed_max_exceeded": stats.Handle.Http_stats.Num_flows_missed_max_exceeded,
+			"num_flow_collisions":           stats.Handle.Http_stats.Num_flow_collisions,
+			"read_batches_skipped":          stats.Handle.Http_stats.Read_batch_skipped,
+			"batches_reported":              stats.Handle.Http_stats.Batches_reported,
 		}, nil
 	default:
 		return nil, fmt.Errorf("no matching handle type for pulling handle stats")

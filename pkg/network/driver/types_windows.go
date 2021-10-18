@@ -6,11 +6,12 @@ package driver
 const Signature = 0xddfd0000000a
 
 const (
-	GetStatsIOCTL      = 0x122004
-	SetFlowFilterIOCTL = 0x122010
-	SetDataFilterIOCTL = 0x12200c
-	SetMaxFlowsIOCTL   = 0x122018
-	SetHTTPFilterIOCTL = 0x12201c
+	GetStatsIOCTL             = 0x122004
+	SetFlowFilterIOCTL        = 0x122010
+	SetDataFilterIOCTL        = 0x12200c
+	SetMaxFlowsIOCTL          = 0x122018
+	SetHTTPFilterIOCTL        = 0x12201c
+	FlushPendingHttpTxnsIOCTL = 0x122020
 )
 
 type FilterAddress struct {

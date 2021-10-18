@@ -59,6 +59,11 @@ typedef unsigned char       uint8_t;
                                               METHOD_BUFFERED,\
                                               FILE_ANY_ACCESS)
 
+#define DDNPMDRIVER_IOCTL_FLUSH_PENDING_HTTP_TRANSACTIONS CTL_CODE(FILE_DEVICE_NETWORK, \
+                                                            0x808, \
+                                                            METHOD_BUFFERED,\
+                                                            FILE_ANY_ACCESS)
+
 #pragma pack(1)
 
 /*!

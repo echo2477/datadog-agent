@@ -153,16 +153,12 @@ func (di *httpDriverInterface) startReadingBuffers() {
 			}
 			*/
 
-			transactionBatch := make([]driver.HttpTransactionType, driver.HttpBatchSize)
-			bytesLeft := uint32(bytesRead)
+			batchSize := bytesRead / transactionSize
+			transactionBatch := make([]driver.HttpTransactionType, batchSize)
 
-			var i uint32 = 0
-			for bytesLeft > transactionSize {
+			for i:=uint32(0); i<batchSize; i++ {
 				transaction := (*driver.HttpTransactionType)(unsafe.Pointer(&buf.Data[i * transactionSize]))
 				deepCopyTransactionData(&transactionBatch[i], transaction)
-
-				bytesLeft -= transactionSize
-				i += 1
 			}
 
 			di.dataChannel <- transactionBatch
@@ -219,10 +215,12 @@ func deepCopyTransactionData(dest, src *driver.HttpTransactionType) {
 }
 
 func (di *httpDriverInterface) flushPendingTransactions() {
-
-	// TODO create ioctl call for flushing pending transactions & call it here
-
-	log.Infof("flushed pending transactions")
+	err := windows.DeviceIoControl(di.driverHTTPHandle.Handle,
+		driver.FlushPendingHttpTxnsIOCTL,
+		nil, uint32(0), nil, uint32(0), nil, nil)
+	if err != nil {
+		log.Warnf("Failed to flush pending http transactions: %v", err)
+	}
 }
 
 func (di *httpDriverInterface) close() error {

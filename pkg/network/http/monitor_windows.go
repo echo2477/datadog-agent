@@ -31,7 +31,7 @@ func NewMonitor(c *config.Config) (*Monitor, error) {
 	}
 
 	if (uint64(c.MaxTrackedConnections) != defaultMaxTrackedConnections) {
-		di.setMaxFlows(c.MaxTrackedConnections)
+		di.setMaxFlows(uint64(c.MaxTrackedConnections))
 	}
 
 	return &Monitor{

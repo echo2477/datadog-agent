@@ -124,9 +124,7 @@ func createHTTPFilters() ([]driver.FilterDefinition, error) {
 	return filters, nil
 }
 
-
-
-func (di *DriverInterface) setMaxFlows(maxFlows uint64) error {
+func (di *httpDriverInterface) setMaxFlows(maxFlows uint64) error {
 	log.Debugf("Setting max flows in driver http filter to %v", maxFlows)
 	err := windows.DeviceIoControl(di.driverHTTPHandle.Handle,
 		driver.SetMaxFlowsIOCTL,

@@ -167,7 +167,3 @@ type ConnTupleType struct {
 	Family    uint16
 }
 type HttpMethodType uint32
-
-const (
-	HttpBatchSize = 0xf
-)

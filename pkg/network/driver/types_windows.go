@@ -77,10 +77,18 @@ type TransportStats struct {
 	Read_packets_skipped int64
 	Packets_reported     int64
 }
+type HttpStats struct {
+	Packets_processed             int64
+	Num_flow_collisions           int64
+	Num_flows_missed_max_exceeded int64
+	Read_batch_skipped            int64
+	Batches_reported              int64
+}
 type Stats struct {
 	Handle_stats    HandleStats
 	Flow_stats      FlowStats
 	Transport_stats TransportStats
+	Http_stats      HttpStats
 }
 type DriverStats struct {
 	FilterVersion uint64
@@ -88,7 +96,7 @@ type DriverStats struct {
 	Handle        Stats
 }
 
-const DriverStatsSize = 0x148
+const DriverStatsSize = 0x198
 
 type PerFlowData struct {
 	FlowHandle         uint64
@@ -138,4 +146,27 @@ const (
 
 const (
 	LayerTransport = 0x1
+)
+
+type HttpTransactionType struct {
+	Tup                ConnTupleType
+	RequestMethod      uint32
+	Pad_cgo_0          [8]byte
+	ResponseStatusCode uint16
+	Pad_cgo_1          [8]byte
+	RequestFragment    [25]int8
+}
+type ConnTupleType struct {
+	Saddr     [16]uint8
+	Daddr     [16]uint8
+	Sport     uint16
+	Dport     uint16
+	Pad_cgo_0 [8]byte
+	Protocol  uint16
+	Family    uint16
+}
+type HttpMethodType uint32
+
+const (
+	HttpBatchSize = 0xf
 )

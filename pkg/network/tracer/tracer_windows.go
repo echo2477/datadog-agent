@@ -80,12 +80,9 @@ func NewTracer(config *config.Config) (*Tracer, error) {
 	if config.EnableHTTPMonitoring {
 		httpMonitor, err = http.NewMonitor(config)
 		if err != nil {
-			return nil, err
+			log.Errorf("could not instantiate http monitor: %s", err)
 		}
-		err = httpMonitor.Start()
-		if err != nil {
-			return nil, err
-		}
+		httpMonitor.Start()
 	}
 
 	tr := &Tracer{
@@ -109,8 +106,11 @@ func NewTracer(config *config.Config) (*Tracer, error) {
 func (t *Tracer) Stop() {
 	close(t.stopChan)
 	t.reverseDNS.Close()
-	t.httpMonitor.Stop()
-	err := t.driverInterface.Close()
+	err := t.httpMonitor.Stop()
+	if err != nil {
+		log.Errorf("error closing http monitor: %s", err)
+	}
+	err = t.driverInterface.Close()
 	if err != nil {
 		log.Errorf("error closing driver interface: %s", err)
 	}

@@ -117,6 +117,7 @@ class Gitlab(RemoteAPI):
         Gets info for a given pipeline.
         """
         path = "/projects/{}/pipelines/{}".format(quote(self.project_name, safe=""), pipeline_id)
+        print(path)
         return self.make_request(path, json_output=True)
 
     def cancel_pipeline(self, pipeline_id):

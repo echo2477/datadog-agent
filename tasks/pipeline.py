@@ -2,6 +2,7 @@ import io
 import os
 import pprint
 import re
+import time
 import traceback
 from collections import defaultdict
 
@@ -423,6 +424,8 @@ def trigger_child_pipeline(_, git_ref, project_name, variables="", follow=True):
 
     if follow:
         print("Waiting for child pipeline to finish...")
+
+        time.sleep(5)
 
         wait_for_pipeline(gitlab, pipeline_id)
 

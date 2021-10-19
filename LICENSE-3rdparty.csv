@@ -182,7 +182,7 @@ core,github.com/bhmj/jsonslice,MIT,bhmj
 core,github.com/bits-and-blooms/bitset,BSD-3-Clause,Will Fitzgerald
 core,github.com/blabber/go-freebsd-sysctl/sysctl,0BSD,Tobias Rehbein <tobias.rehbein@web.de>
 core,github.com/blang/semver,MIT,Benedikt Lang <github at benediktlang.de>
-core,github.com/bmizerany/pat,UNKNOWN,"Keith Rarick, Blake Mizerany"
+core,github.com/bmizerany/pat,MIT,"Keith Rarick, Blake Mizerany"
 core,github.com/bytecodealliance/wasmtime-go,Apache-2.0,Bytecode Alliance
 core,github.com/bytecodealliance/wasmtime-go/build/include,Apache-2.0,Bytecode Alliance
 core,github.com/bytecodealliance/wasmtime-go/build/include/wasmtime,Apache-2.0,Bytecode Alliance
@@ -690,11 +690,11 @@ core,github.com/vishvananda/netlink,Apache-2.0,"Docker, Inc | Vishvananda Ishaya
 core,github.com/vishvananda/netlink/nl,Apache-2.0,"Docker, Inc | Vishvananda Ishaya"
 core,github.com/vishvananda/netns,Apache-2.0,"Docker, Inc | Vishvananda Ishaya"
 core,github.com/vito/go-sse/sse,Apache-2.0,The Authors
-core,github.com/wille/osutil,UNKNOWN,wille
+core,github.com/wille/osutil,None,wille
 core,github.com/xeipuuv/gojsonpointer,Apache-2.0,xeipuuv ( https://github.com/xeipuuv )
 core,github.com/xeipuuv/gojsonreference,Apache-2.0,xeipuuv ( https://github.com/xeipuuv )
 core,github.com/xeipuuv/gojsonschema,Apache-2.0,xeipuuv ( https://github.com/xeipuuv )
-core,github.com/xi2/xz,UNKNOWN,Igor Pavlov <http://7-zip.org/> | Lasse Collin <lasse.collin@tukaani.org> | Michael Cross <https://github.com/xi2>
+core,github.com/xi2/xz,Public Domain,Igor Pavlov <http://7-zip.org/> | Lasse Collin <lasse.collin@tukaani.org> | Michael Cross <https://github.com/xi2>
 core,github.com/xor-gate/ar,MIT,Blake Smith <blakesmith0@gmail.com>
 core,github.com/yashtewari/glob-intersection,Apache-2.0,yashtewari (https://github.com/yashtewari)
 core,go.etcd.io/bbolt,MIT,the etcd maintainers

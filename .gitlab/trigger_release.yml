@@ -4,6 +4,9 @@
 
 .agent_release_management_trigger:
   stage: trigger_release
+  rules:
+    - when: manual
+  needs: []
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-buildimages/deb_x64:$DATADOG_AGENT_BUILDIMAGES
   tags: ["runner:main"]
   script:

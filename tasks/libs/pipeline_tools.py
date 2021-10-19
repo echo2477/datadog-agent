@@ -150,6 +150,7 @@ def wait_for_pipeline(gitlab, pipeline_id, pipeline_finish_timeout_sec=PIPELINE_
 
 def get_commit_for_pipeline(gitlab, pipeline_id):
     pipeline = gitlab.pipeline(pipeline_id)
+    print(pipeline)
     sha = pipeline['sha']
     commit = gitlab.commit(sha)
     return commit['author_name'], commit['short_id'], commit['title']

@@ -598,9 +598,8 @@ func NewTimeoutError(probe *sprobe.Probe) ErrTimeout {
 	err.msg = fmt.Sprintf("%s, %d lost", err.msg, perfBufferMonitor.GetKernelLostCount("events", -1))
 
 	for i := model.UnknownEventType; i < model.MaxEventType; i++ {
-		if stats, kernelStats := perfBufferMonitor.GetEventStats(i, "events", -1); stats.Count > 0 {
-			err.msg = fmt.Sprintf("%s, %s user:%d kernel:%d lost:%d", err.msg, i, stats.Count, kernelStats.Count, kernelStats.Lost)
-		}
+		stats, kernelStats := perfBufferMonitor.GetEventStats(i, "events", -1)
+		err.msg = fmt.Sprintf("%s, %s user:%d kernel:%d lost:%d", err.msg, i, stats.Count, kernelStats.Count, kernelStats.Lost)
 	}
 
 	return err
@@ -999,7 +998,7 @@ func waitForDiscarder(test *testModule, key string, value interface{}, eventType
 				return nil
 			}
 		case <-timeout:
-			return errors.New("timeout")
+			return NewTimeoutError(test.probe)
 		}
 	}
 }

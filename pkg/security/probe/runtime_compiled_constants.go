@@ -8,7 +8,9 @@
 package probe
 
 import (
+	"debug/elf"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -21,12 +23,15 @@ import (
 )
 
 const testCode = `
+#include <linux/compiler.h>
 #include <linux/kconfig.h>
 #include <linux/fs.h>
 
-int test() {
-	struct inode a;
-}
+size_t inode_size = sizeof(struct inode);
+size_t magic_super_block_offset = offsetof(struct super_block, s_magic);
+
+// #define SEC(NAME) __attribute__((section(NAME), used))
+// char _license[] SEC("license") = "MIT";
 `
 
 var additionalFlags = []string{
@@ -38,16 +43,14 @@ var additionalFlags = []string{
 	"-fno-jump-tables",
 }
 
-func computeConstantsWithRuntimeCompilation(config *ebpf.Config) error {
-	seclog.Warnf("Hello Runtime compilation !")
-
+func compileConstantFetcher(config *ebpf.Config) (io.ReaderAt, error) {
 	dirs, _, err := kernel.GetKernelHeaders(config.KernelHeadersDirs, config.KernelHeadersDownloadDir, config.AptConfigDir, config.YumReposDir, config.ZypperReposDir)
 	if err != nil {
-		return fmt.Errorf("unable to find kernel headers: %w", err)
+		return nil, fmt.Errorf("unable to find kernel headers: %w", err)
 	}
 	comp, err := compiler.NewEBPFCompiler(dirs, config.BPFDebug)
 	if err != nil {
-		return fmt.Errorf("failed to create compiler: %w", err)
+		return nil, fmt.Errorf("failed to create compiler: %w", err)
 	}
 	defer comp.Close()
 
@@ -55,24 +58,52 @@ func computeConstantsWithRuntimeCompilation(config *ebpf.Config) error {
 
 	outputFile, err := os.CreateTemp("", "datadog_cws_constants_fetcher")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := outputFile.Close(); err != nil {
-		return err
+		return nil, err
 	}
 
 	inputReader := strings.NewReader(testCode)
 	if err := comp.CompileToObjectFile(inputReader, outputFile.Name(), flags); err != nil {
-		return err
+		return nil, err
 	}
 
-	output, err := os.ReadFile(outputFile.Name())
+	return os.Open(outputFile.Name())
+}
+
+func computeConstantsWithRuntimeCompilation(config *ebpf.Config) error {
+	seclog.Warnf("Hello Runtime compilation !")
+
+	elfFile, err := compileConstantFetcher(config)
 	if err != nil {
 		return err
 	}
 
-	log.Warnf("%v", output)
+	f, err := elf.NewFile(elfFile)
+	if err != nil {
+		return err
+	}
+
+	symbols, err := f.Symbols()
+	if err != nil {
+		return err
+	}
+	for i, sym := range symbols {
+		if i == 0 {
+			continue
+		}
+
+		log.Infof("%+v", sym)
+
+		section := f.Sections[sym.Section]
+		buf := make([]byte, 8)
+		section.ReadAt(buf, int64(sym.Value))
+
+		value := f.ByteOrder.Uint64(buf)
+		log.Infof("value: %v", value)
+	}
 
 	return nil
 }

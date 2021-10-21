@@ -891,6 +891,11 @@ func NewProbe(config *config.Config, client *statsd.Client) (*Probe, error) {
 		p.managerOptions.ActivatedProbes = append(p.managerOptions.ActivatedProbes, probes.SyscallMonitorSelectors...)
 	}
 
+	if err := computeConstantsWithRuntimeCompilation(&config.Config); err != nil {
+		log.Errorf("runtime compilation of constant fetcher failed: ", err)
+		return nil, err
+	}
+
 	// Add global constant editors
 	p.managerOptions.ConstantEditors = append(p.managerOptions.ConstantEditors,
 		manager.ConstantEditor{

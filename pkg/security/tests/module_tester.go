@@ -197,6 +197,10 @@ func (h *testProbeHandler) HandleEvent(event *sprobe.Event) {
 	h.RLock()
 	defer h.RUnlock()
 
+	if event.GetEventType() == model.FileRemoveXAttrEventType || event.GetEventType() == model.FileSetXAttrEventType {
+		fmt.Printf("%s\n", event)
+	}
+
 	if h.module == nil {
 		return
 	}

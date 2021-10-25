@@ -9,6 +9,7 @@ import (
 
 // batcher batches multiple metrics before submission
 // this struct is not safe for concurrent use
+// XXX(remy): we will need to add the hostname here
 type batcher struct {
 	samples      []metrics.MetricSample
 	samplesCount int
@@ -24,7 +25,8 @@ type batcher struct {
 	metricSamplePool *metrics.MetricSamplePool
 }
 
-func newBatcher(agg *aggregator.BufferedAggregator) *batcher {
+func newBatcher(demux aggregator.Demultiplexer) *batcher {
+	agg := demux.Aggregator() // XXX(remy): do not use directly the aggregator anymore
 	s, e, sc := agg.GetBufferedChannels()
 	return &batcher{
 		samples:            agg.MetricSamplePool.GetBatch(),
@@ -39,6 +41,7 @@ func (b *batcher) appendSample(sample metrics.MetricSample) {
 	if b.samplesCount == len(b.samples) {
 		b.flushSamples()
 	}
+	// XXX(remy): we will probably want to compute the hash here
 	b.samples[b.samplesCount] = sample
 	b.samplesCount++
 }

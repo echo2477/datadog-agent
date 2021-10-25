@@ -93,9 +93,6 @@ func timeNowNano() float64 {
 }
 
 var (
-	aggregatorInstance *BufferedAggregator
-	aggregatorInit     sync.Once
-
 	aggregatorExpvars = expvar.NewMap("aggregator")
 	flushTimeStats    = make(map[string]*Stats)
 	flushCountStats   = make(map[string]*Stats)
@@ -182,28 +179,28 @@ func InitAggregator(s serializer.MetricSerializer, eventPlatformForwarder epforw
 
 // InitAggregatorWithFlushInterval returns the Singleton instance with a configured flush interval
 func InitAggregatorWithFlushInterval(s serializer.MetricSerializer, eventPlatformForwarder epforwarder.EventPlatformForwarder, hostname string, flushInterval time.Duration) *BufferedAggregator {
-	aggregatorInit.Do(func() {
-		aggregatorInstance = NewBufferedAggregator(s, eventPlatformForwarder, hostname, flushInterval)
-		go aggregatorInstance.run()
-	})
-
-	return aggregatorInstance
+	//	aggregatorInit.Do(func() {
+	//		aggregatorInstance = NewBufferedAggregator(s, eventPlatformForwarder, hostname, flushInterval)
+	//	})
+	//	return aggregatorInstance
+	return NewBufferedAggregator(s, eventPlatformForwarder, hostname, flushInterval)
 }
 
 // SetDefaultAggregator allows to force a custom Aggregator as the default one and run it.
 // This is useful for testing or benchmarking.
 func SetDefaultAggregator(agg *BufferedAggregator) {
-	aggregatorInstance = agg
-	go aggregatorInstance.run()
+	//	aggregatorInstance = agg
+	// XXX(remy): panic?
 }
 
 // StopDefaultAggregator stops the default aggregator. Based on 'flushData'
 // waiting metrics (from checks or closed dogstatsd buckets) will be sent to
 // the serializer before stopping.
 func StopDefaultAggregator() {
-	if aggregatorInstance != nil {
-		aggregatorInstance.Stop()
-	}
+	//	if aggregatorInstance != nil {
+	//		aggregatorInstance.Stop()
+	//	}
+	// XXX(remy): panic?
 }
 
 // BufferedAggregator aggregates metrics in buckets for dogstatsd Metrics

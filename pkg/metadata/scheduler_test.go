@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DataDog/datadog-agent/pkg/forwarder"
+	"github.com/DataDog/datadog-agent/pkg/aggregator"
 	"github.com/DataDog/datadog-agent/pkg/serializer"
 	"github.com/stretchr/testify/assert"
 )
@@ -53,22 +53,19 @@ func TestNewScheduler(t *testing.T) {
 	enableFirstRunCollection = false
 	defer func() { enableFirstRunCollection = true }()
 
-	fwd := forwarder.NewDefaultForwarder(forwarder.NewOptions(nil))
-	fwd.Start()
-	s := serializer.NewSerializer(fwd, nil)
-	c := NewScheduler(s)
+	demux := aggregator.NewAgentDemultiplexer(aggregator.DefaultDemultiplexerOptions(nil), "hostname")
+	c := NewScheduler(demux)
 
-	assert.Equal(t, fwd, c.srl.Forwarder)
+	assert.Equal(t, demux, c.demux)
 }
 
 func TestStopScheduler(t *testing.T) {
 	enableFirstRunCollection = false
 	defer func() { enableFirstRunCollection = true }()
 
-	fwd := forwarder.NewDefaultForwarder(forwarder.NewOptions(nil))
-	fwd.Start()
-	s := serializer.NewSerializer(fwd, nil)
-	c := NewScheduler(s)
+	demux := buildDemultiplexer()
+	defer demux.Stop()
+	c := NewScheduler(demux)
 
 	mockCollector := MockCollector{}
 	RegisterCollector("test", mockCollector)
@@ -92,10 +89,10 @@ func TestAddCollector(t *testing.T) {
 		SendCalledC: make(chan bool),
 	}
 
-	fwd := forwarder.NewDefaultForwarder(forwarder.NewOptions(nil))
-	fwd.Start()
-	s := serializer.NewSerializer(fwd, nil)
-	c := NewScheduler(s)
+	demux := buildDemultiplexer()
+	defer demux.Stop()
+	c := NewScheduler(demux)
+
 	RegisterCollector("testCollector", mockCollector)
 
 	select {
@@ -127,10 +124,10 @@ func TestAddCollectorWithInit(t *testing.T) {
 		InitCalledC: make(chan bool, 1),
 	}
 
-	fwd := forwarder.NewDefaultForwarder(forwarder.NewOptions(nil))
-	fwd.Start()
-	s := serializer.NewSerializer(fwd, nil)
-	c := NewScheduler(s)
+	demux := buildDemultiplexer()
+	defer demux.Stop()
+	c := NewScheduler(demux)
+
 	RegisterCollector("testCollectorWithInit", mockCollectorWithInit)
 
 	select {
@@ -165,10 +162,10 @@ func TestTriggerAndResetCollectorTimer(t *testing.T) {
 		SendCalledC: make(chan bool),
 	}
 
-	fwd := forwarder.NewDefaultForwarder(forwarder.NewOptions(nil))
-	fwd.Start()
-	s := serializer.NewSerializer(fwd, nil)
-	c := NewScheduler(s)
+	demux := buildDemultiplexer()
+	defer demux.Stop()
+	c := NewScheduler(demux)
+
 	RegisterCollector("testCollector", mockCollector)
 
 	c.AddCollector("testCollector", 10*time.Hour)
@@ -193,4 +190,10 @@ func TestTriggerAndResetCollectorTimer(t *testing.T) {
 	default:
 	}
 
+}
+
+func buildDemultiplexer() aggregator.Demultiplexer {
+	demux := aggregator.NewAgentDemultiplexer(aggregator.DefaultDemultiplexerOptions(nil), "hostname")
+	go demux.Run()
+	return demux
 }

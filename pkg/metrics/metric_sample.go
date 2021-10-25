@@ -6,6 +6,7 @@
 package metrics
 
 import (
+	"github.com/DataDog/datadog-agent/pkg/aggregator/ckey"
 	"github.com/DataDog/datadog-agent/pkg/tagger"
 	"github.com/DataDog/datadog-agent/pkg/util"
 )
@@ -68,6 +69,7 @@ type MetricSampleContext interface {
 
 // MetricSample represents a raw metric sample
 type MetricSample struct {
+	Key             ckey.ContextKey // XXX(remy): comment
 	Name            string
 	Value           float64
 	RawValue        string

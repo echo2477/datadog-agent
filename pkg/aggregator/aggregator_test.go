@@ -39,11 +39,11 @@ func TestRegisterCheckSampler(t *testing.T) {
 	agg := InitAggregator(nil, nil, "")
 	err := agg.registerSender(checkID1)
 	assert.Nil(t, err)
-	assert.Len(t, aggregatorInstance.checkSamplers, 1)
+	assert.Len(t, agg.checkSamplers, 1)
 
 	err = agg.registerSender(checkID2)
 	assert.Nil(t, err)
-	assert.Len(t, aggregatorInstance.checkSamplers, 2)
+	assert.Len(t, agg.checkSamplers, 2)
 
 	// Already registered sender => error
 	err = agg.registerSender(checkID2)
@@ -56,10 +56,10 @@ func TestDeregisterCheckSampler(t *testing.T) {
 	agg := InitAggregator(nil, nil, "")
 	agg.registerSender(checkID1)
 	agg.registerSender(checkID2)
-	assert.Len(t, aggregatorInstance.checkSamplers, 2)
+	assert.Len(t, agg.checkSamplers, 2)
 
 	agg.deregisterSender(checkID1)
-	require.Len(t, aggregatorInstance.checkSamplers, 1)
+	require.Len(t, agg.checkSamplers, 1)
 	_, ok := agg.checkSamplers[checkID1]
 	assert.False(t, ok)
 	_, ok = agg.checkSamplers[checkID2]

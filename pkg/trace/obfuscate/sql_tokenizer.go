@@ -223,6 +223,10 @@ func (tkn *SQLTokenizer) Scan() (TokenKind, []byte) {
 				tkn.advance()
 				return ColonCast, []byte("::")
 			}
+			if unicode.IsSpace(tkn.lastChar) {
+				tkn.advance()
+				return TokenKind(ch), tkn.bytes()
+			}
 			if tkn.lastChar != '=' {
 				return tkn.scanBindVar()
 			}

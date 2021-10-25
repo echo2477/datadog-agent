@@ -50,7 +50,7 @@ func (f *ComposeConstantFetcher) AppendSizeofRequest(id, typeName, headerName st
 	})
 }
 
-// AppendSizeofRequest appends an offset request
+// AppendOffsetofRequest appends an offset request
 func (f *ComposeConstantFetcher) AppendOffsetofRequest(id, typeName, fieldName, headerName string) {
 	f.appendRequest(&composeRequest{
 		id:         id,
@@ -139,7 +139,7 @@ func (f *FallbackConstantFetcher) AppendSizeofRequest(id, typeName, headerName s
 	f.appendRequest(id)
 }
 
-// AppendSizeofRequest appends an offset request
+// AppendOffsetofRequest appends an offset request
 func (f *FallbackConstantFetcher) AppendOffsetofRequest(id, typeName, fieldName, headerName string) {
 	f.appendRequest(id)
 }

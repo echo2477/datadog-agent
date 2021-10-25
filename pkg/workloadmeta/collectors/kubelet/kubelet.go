@@ -131,6 +131,8 @@ func (c *collector) parsePods(pods []*kubelet.Pod) []workloadmeta.Event {
 			PriorityClass:              pod.Spec.PriorityClassName,
 		}
 
+		log.Debugf("processing pod: %+v", entity)
+
 		events = append(events, containerEvents...)
 		events = append(events, workloadmeta.Event{
 			Source: collectorID,
@@ -279,6 +281,7 @@ func (c *collector) parseExpires(expiredIDs []string) []workloadmeta.Event {
 
 		var kind workloadmeta.Kind
 		if prefix == kubelet.KubePodEntityName {
+			log.Debugf("removing pod: %q", id)
 			kind = workloadmeta.KindKubernetesPod
 		} else {
 			kind = workloadmeta.KindContainer

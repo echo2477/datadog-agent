@@ -205,6 +205,8 @@ func (l *KubeletListener) createPodService(pod workloadmeta.KubernetesPod, conta
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
+	log.Debugf("create service: %+v", svc)
+
 	l.services[buildSvcID(pod.GetID())] = svc
 	l.newService <- svc
 }
@@ -309,17 +311,19 @@ func (l *KubeletListener) createContainerService(pod workloadmeta.KubernetesPod,
 
 	if old, found := l.services[svcID]; found {
 		if kubeletSvcEqual(old, svc) {
-			log.Tracef("Received a duplicated kubelet service '%s'", svc.entity)
+			log.Debugf("Received a duplicated kubelet service '%s'", svc.entity)
 			return
 		}
 
-		log.Tracef("Kubelet service '%s' has been updated, removing the old one", svc.entity)
+		log.Debugf("Kubelet service '%s' has been updated, removing the old one", svc.entity)
 		l.delService <- old
 	}
 
 	if _, ok := l.podContainers[podSvcID]; !ok {
 		l.podContainers[podSvcID] = make(map[string]struct{})
 	}
+
+	log.Debugf("create service: %+v", svc)
 
 	l.services[svcID] = svc
 	l.podContainers[podSvcID][svcID] = struct{}{}
@@ -335,6 +339,8 @@ func (l *KubeletListener) removePodService(entityID workloadmeta.EntityID) {
 	delete(l.podContainers, svcID)
 	l.mu.Unlock()
 
+	log.Debugf("pod removed, deleting containers too: %q", svcID)
+
 	for containerSvcID := range containerSvcIDs {
 		l.removeService(containerSvcID)
 	}
@@ -349,6 +355,8 @@ func (l *KubeletListener) removeService(svcID string) {
 		log.Debugf("service %q not found, not removing", svcID)
 		return
 	}
+
+	log.Debugf("remove service: %+v", svc)
 
 	delete(l.services, svcID)
 	l.delService <- svc

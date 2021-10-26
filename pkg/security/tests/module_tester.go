@@ -624,18 +624,18 @@ func (tm *testModule) GetSignal(tb testing.TB, action func() error, cb ruleHandl
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	fmt.Printf("Calling RegisterRuleEventHandler cb for: %p", tm)
+	fmt.Printf("Calling RegisterRuleEventHandler cb for testMod:%p module:%p probe:%p\n", tm, tm.module, tm.module.GetProbe())
 	tm.RegisterRuleEventHandler(func(e *sprobe.Event, r *rules.Rule) {
 		tb.Helper()
 		cb(e, r)
 		cancel()
 	})
-	fmt.Printf("RegisterRuleEventHandler cb for: %p", tm)
+	fmt.Printf("RegisterRuleEventHandler cb for testMod:%p module:%p probe:%p\n", tm, tm.module, tm.module.GetProbe())
 
 	defer func() {
-		fmt.Printf("Calling RegisterRuleEventHandler nil for: %p ...\n", tm)
+		fmt.Printf("Calling RegisterRuleEventHandler nil for testMod:%p module:%p probe:%p\n", tm, tm.module, tm.module.GetProbe())
 		tm.RegisterRuleEventHandler(nil)
-		fmt.Printf("RegisterRuleEventHandler nil for: %p\n", tm)
+		fmt.Printf("RegisterRuleEventHandler nil for testMod:%p module:%p probe:%p\n", tm, tm.module, tm.module.GetProbe())
 	}()
 
 	if err := action(); err != nil {

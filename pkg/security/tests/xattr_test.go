@@ -8,10 +8,10 @@
 package tests
 
 import (
+	"fmt"
 	"os"
 	"syscall"
 	"testing"
-	"time"
 	"unsafe"
 
 	"github.com/stretchr/testify/assert"
@@ -37,7 +37,11 @@ func TestSetXAttr(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer test.Close()
+	defer func() {
+		fmt.Printf("closing TestSetXAttr testmod: %p\n", test)
+		test.Close()
+	}()
+	fmt.Printf("TestSetXAttr testmod: %p\n", test)
 
 	xattrName, err := syscall.BytePtrFromString("user.test_xattr")
 	if err != nil {
@@ -57,12 +61,14 @@ func TestSetXAttr(t *testing.T) {
 		defer os.Remove(testFile)
 
 		test.WaitSignal(t, func() error {
+			fmt.Printf("SYS_SETXATTR\n")
 			_, _, errno := syscall.Syscall6(syscall.SYS_SETXATTR, uintptr(testFilePtr), uintptr(xattrNamePtr), uintptr(xattrValuePtr), 0, unix.XATTR_CREATE, 0)
 			if errno != 0 {
 				return error(errno)
 			}
 			return nil
 		}, func(event *sprobe.Event, rule *rules.Rule) {
+			fmt.Printf("got event for SYS_SETXATTR\n")
 			assert.Equal(t, "setxattr", event.GetType(), "wrong event type")
 			assert.Equal(t, "user.test_xattr", event.SetXAttr.Name)
 			assert.Equal(t, "user", event.SetXAttr.Namespace)
@@ -92,6 +98,7 @@ func TestSetXAttr(t *testing.T) {
 		defer os.Remove(testFile)
 
 		test.WaitSignal(t, func() error {
+			fmt.Printf("SYS_LSETXATTR\n")
 			_, _, errno := syscall.Syscall6(syscall.SYS_LSETXATTR, uintptr(testFilePtr), uintptr(xattrNamePtr), uintptr(xattrValuePtr), 0, unix.XATTR_CREATE, 0)
 			// Linux and Android don't support xattrs on symlinks according
 			// to xattr(7), so just test that we get the proper error.
@@ -101,6 +108,7 @@ func TestSetXAttr(t *testing.T) {
 			}
 			return nil
 		}, func(event *sprobe.Event, rule *rules.Rule) {
+			fmt.Printf("got event for SYS_LSETXATTR\n")
 			assert.Equal(t, "setxattr", event.GetType(), "wrong event type")
 			assert.Equal(t, "user.test_xattr", event.SetXAttr.Name)
 			assert.Equal(t, "user", event.SetXAttr.Namespace)
@@ -126,12 +134,14 @@ func TestSetXAttr(t *testing.T) {
 		defer os.Remove(testFile)
 
 		test.WaitSignal(t, func() error {
+			fmt.Printf("SYS_FSETXATTR\n")
 			_, _, errno := syscall.Syscall6(syscall.SYS_FSETXATTR, f.Fd(), uintptr(xattrNamePtr), uintptr(xattrValuePtr), 0, unix.XATTR_CREATE, 0)
 			if errno != 0 {
 				t.Fatal(error(errno))
 			}
 			return nil
 		}, func(event *sprobe.Event, rule *rules.Rule) {
+			fmt.Printf("got event for SYS_FSETXATTR\n")
 			assert.Equal(t, "setxattr", event.GetType(), "wrong event type")
 			assert.Equal(t, "user.test_xattr", event.SetXAttr.Name)
 			assert.Equal(t, "user", event.SetXAttr.Namespace)
@@ -162,7 +172,11 @@ func TestRemoveXAttr(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer test.Close()
+	defer func() {
+		fmt.Printf("closing TestRemoveXAttr testmod: %p\n", test)
+		test.Close()
+	}()
+	fmt.Printf("TestRemoveXAttr testmod: %p\n", test)
 
 	xattrName, err := syscall.BytePtrFromString("user.test_xattr")
 	if err != nil {
@@ -193,12 +207,14 @@ func TestRemoveXAttr(t *testing.T) {
 		}
 
 		test.WaitSignal(t, func() error {
+			fmt.Printf("SYS_REMOVEXATTR\n")
 			_, _, errno = syscall.Syscall(syscall.SYS_REMOVEXATTR, uintptr(testFilePtr), uintptr(xattrNamePtr), 0)
 			if errno != 0 {
 				t.Fatal(error(errno))
 			}
 			return nil
 		}, func(event *sprobe.Event, rule *rules.Rule) {
+			fmt.Printf("got event for SYS_REMOVEXATTR\n")
 			assert.Equal(t, "removexattr", event.GetType(), "wrong event type")
 			assert.Equal(t, "user.test_xattr", event.RemoveXAttr.Name)
 
@@ -236,6 +252,7 @@ func TestRemoveXAttr(t *testing.T) {
 		}
 
 		test.WaitSignal(t, func() error {
+			fmt.Printf("SYS_LREMOVEXATTR\n")
 			_, _, errno = syscall.Syscall(syscall.SYS_LREMOVEXATTR, uintptr(testFilePtr), uintptr(xattrNamePtr), 0)
 			// Linux and Android don't support xattrs on symlinks according
 			// to xattr(7), so just test that we get the proper error.
@@ -244,6 +261,7 @@ func TestRemoveXAttr(t *testing.T) {
 			}
 			return nil
 		}, func(event *sprobe.Event, rule *rules.Rule) {
+			fmt.Printf("got event for SYS_LREMOVEXATTR\n")
 			assert.Equal(t, "removexattr", event.GetType(), "wrong event type")
 			assert.Equal(t, "user.test_xattr", event.RemoveXAttr.Name)
 
@@ -275,12 +293,14 @@ func TestRemoveXAttr(t *testing.T) {
 		}
 
 		test.WaitSignal(t, func() error {
+			fmt.Printf("SYS_FREMOVEXATTR\n")
 			_, _, errno = syscall.Syscall(syscall.SYS_FREMOVEXATTR, f.Fd(), uintptr(xattrNamePtr), 0)
 			if errno != 0 {
 				t.Fatal(error(errno))
 			}
 			return nil
 		}, func(event *sprobe.Event, rule *rules.Rule) {
+			fmt.Printf("got event for SYS_FREMOVEXATTR\n")
 			if event.GetType() != "removexattr" {
 				t.Errorf("expected removexattr event, got %s", event.GetType())
 			}
@@ -297,16 +317,8 @@ func TestRemoveXAttr(t *testing.T) {
 				t.Errorf("expected initial mode %d, got %d", expectedMode, int(event.RemoveXAttr.File.Mode)&expectedMode)
 			}
 
-			now := time.Now()
-			mtime := time.Unix(0, int64(event.RemoveXAttr.File.MTime))
-			if mtime.After(now) || mtime.Before(now.Add(-1*time.Hour)) {
-				t.Errorf("expected mtime close to %s, got %s", now, mtime)
-			}
-
-			ctime := time.Unix(0, int64(event.RemoveXAttr.File.CTime))
-			if ctime.After(now) || ctime.Before(now.Add(-1*time.Hour)) {
-				t.Errorf("expected ctime close to %s, got %s", now, ctime)
-			}
+			assertNearTime(t, event.RemoveXAttr.File.MTime)
+			assertNearTime(t, event.RemoveXAttr.File.CTime)
 		})
 	})
 }

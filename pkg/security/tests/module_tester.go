@@ -198,14 +198,23 @@ func (h *testProbeHandler) HandleEvent(event *sprobe.Event) {
 	defer h.RUnlock()
 
 	if event.GetEventType() == model.FileRemoveXAttrEventType || event.GetEventType() == model.FileSetXAttrEventType {
-		fmt.Printf("%s\n", event)
+		fmt.Printf("HandleEvent %s\n", event)
 	}
 
 	if h.module == nil {
+		if event.GetEventType() == model.FileRemoveXAttrEventType || event.GetEventType() == model.FileSetXAttrEventType {
+			fmt.Println("no module")
+		}
 		return
 	}
 
+	if event.GetEventType() == model.FileRemoveXAttrEventType || event.GetEventType() == model.FileSetXAttrEventType {
+		fmt.Printf("module:%p probe:%p\n\n", h.module, h.module.GetProbe())
+	}
 	h.module.HandleEvent(event)
+	if event.GetEventType() == model.FileRemoveXAttrEventType || event.GetEventType() == model.FileSetXAttrEventType {
+		fmt.Println("event should have triggered")
+	}
 
 	if h.eventHandler != nil && h.eventHandler.callback != nil {
 		h.eventHandler.callback(event)
@@ -615,13 +624,19 @@ func (tm *testModule) GetSignal(tb testing.TB, action func() error, cb ruleHandl
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	fmt.Printf("Calling RegisterRuleEventHandler cb for: %p", tm)
 	tm.RegisterRuleEventHandler(func(e *sprobe.Event, r *rules.Rule) {
 		tb.Helper()
 		cb(e, r)
 		cancel()
 	})
+	fmt.Printf("RegisterRuleEventHandler cb for: %p", tm)
 
-	defer tm.RegisterRuleEventHandler(nil)
+	defer func() {
+		fmt.Printf("Calling RegisterRuleEventHandler nil for: %p ...\n", tm)
+		tm.RegisterRuleEventHandler(nil)
+		fmt.Printf("RegisterRuleEventHandler nil for: %p\n", tm)
+	}()
 
 	if err := action(); err != nil {
 		tb.Fatal(err)

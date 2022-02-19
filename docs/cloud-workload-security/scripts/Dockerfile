@@ -1,4 +1,4 @@
-FROM golang:1.15-buster
+FROM golang:1.18beta2-buster
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV GOPATH /go

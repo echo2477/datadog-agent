@@ -2,7 +2,7 @@
 # Preparation stage: layout and chmods #
 ########################################
 
-FROM ubuntu:21.04 as builder
+FROM ubuntu:impish as builder
 
 WORKDIR /output
 
@@ -25,7 +25,7 @@ RUN chmod 755 entrypoint.sh \
 # Actual docker image construction #
 ####################################
 
-FROM ubuntu:21.04
+FROM ubuntu:impish
 
 LABEL maintainer "Datadog <package@datadoghq.com>"
 

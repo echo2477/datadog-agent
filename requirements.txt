@@ -7,3 +7,4 @@ docker-squash==1.0.8
 requests==2.26.0
 PyYAML==6.0
 toml==0.10.2
+setuptools>=70.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
